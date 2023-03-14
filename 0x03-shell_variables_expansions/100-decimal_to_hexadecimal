@@ -1,2 +1,1 @@
-#!/bin/bash
-printf "%x\n" "$DECIMAL" > 100-decimal_to_hexadecimal
+0
