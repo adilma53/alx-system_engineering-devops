@@ -2,8 +2,9 @@
 # print "Best School" for 10 times
 
 i=1
-until((i >= 10))
+until((i > 10))
 do
     echo "Best School"
     ((i++))
+
 done
