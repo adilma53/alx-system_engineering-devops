@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
-# this script kill the process of 7-highlander
+# this script print I am invincible!!! when receiving a SIGTERM signal
 
-pkill -f 7-highlander
+trap 'echo "I am invincible!!!"' SIGTERM
+while true
+do
+  echo "To infinity and beyond"
+  sleep 2 
+done
