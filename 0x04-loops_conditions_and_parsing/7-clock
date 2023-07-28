@@ -1,23 +1,19 @@
 #!/usr/bin/env bash
 # print all clock
 
-h=0
-m=1
+i=0
 
-while((i <= 12 ))
+while((i <= 12))
 do
     echo "Hour: $i"
-
-        while(( m <= 59 ))
-        do
-            echo $m
-            ((m++))
-        done
-        m=1
+    m=1
+    while((m <= 59))
+    do
+        echo "$j"
+        ((m++))
+    done
 
     ((i++))
-
 done
-
 
 
