@@ -1,5 +1,5 @@
-#!/bin/bash
-# bad luck for every country
+#!/usr/bin/env bash
+# print all clock
 
 h=0
 m=1

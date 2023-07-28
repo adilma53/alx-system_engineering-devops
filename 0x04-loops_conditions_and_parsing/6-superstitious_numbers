@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # bad luck for every country
 
 i=1
@@ -19,3 +19,5 @@ do
     
     ((i++))
 done
+
+
