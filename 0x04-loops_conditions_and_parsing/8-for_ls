@@ -7,5 +7,5 @@ for file in $files
 do
     new_name=$(echo "$file" | cut -d '-' -f2)
 
-    echo $new_name
+    echo "$new_name"
 done
