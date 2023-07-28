@@ -9,7 +9,7 @@ do
     m=1
     while((m <= 59))
     do
-        echo "$j"
+        echo "$m"
         ((m++))
     done
 
