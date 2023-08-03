@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-pattern = /\[from:(\S+)\] \[to:(\S+)\] \[flags:(.*?)\]/
+pattern = /(?<=from|to|flags):(\+?\w+|[-?[0-1]:?]+)/
 
 File.open('logfile.txt').each do |line|
   match_data = line.match(pattern)
