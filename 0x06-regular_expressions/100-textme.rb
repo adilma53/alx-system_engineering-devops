@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-
 pattern = /\[from:(\S+)\] \[to:(\S+)\] \[flags:(.*?)\]/
 
 File.open('logfile.txt').each do |line|
