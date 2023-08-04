@@ -1,0 +1,14 @@
+#!/bin/bash
+#this script print the content of all files 
+
+
+
+files=$(ls)
+
+for file in $files;
+do
+    echo -e "\n"
+    echo "**************************| $file |**************************"
+    cat $file
+    
+done
