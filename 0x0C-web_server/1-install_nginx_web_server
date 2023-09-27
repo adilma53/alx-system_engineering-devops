@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# install Nginx on the web server
+YELLOW='\e[33m'
+GREEN='\e[32m'
+NC='\e[0m'
 
-# updating and installing Nginx
-echo "[!] Updating your system and installing Nginx"
+
+echo -e "${YELLOW}[!] updating your system and installing the nginx${NC}"
 sudo apt-get update -y
 sudo apt-get install nginx -y
-echo "[+] Nginx installed"
+echo -e "${GREEN}[+] nginx installed${NC}"
 
-# starting Nginx
-echo "[!] Starting Nginx"
+
+echo -e "$YELLOW [!] starting the nigx"
 sudo service nginx start
 
-# allowing Nginx through the firewall
-echo "[!] Allowing Nginx on the firewall"
+echo -e "$YELLOW [!] allowing the nigx on the firewall $NC"
 sudo ufw allow 'Nginx HTTP'
-echo "[!] Done allowing Nginx on the firewall"
+echo -e "$YELLOW [!] done allowing the nigx on the firewall${NC}"
 
-# creating a Hello World page
-echo "[!] Creating a Hello World page"
+echo -e "$YELLOW [!] write hello world"
 echo "Hello World!" | sudo tee /var/www/html/index.html
 sudo nginx -t
 sudo service nginx reload
-echo "[!] Done"
+echo -e "$YELLOW [!] done${NC}"
