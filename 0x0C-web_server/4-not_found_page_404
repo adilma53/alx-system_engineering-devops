@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v nginx)" ]; then
+    apt-get update
+    apt-get install -y nginx
+
+    service nginx start
+fi
+
+echo "Ceci n'est pas une page" > /usr/share/nginx/html/404.html
+
+cat > /etc/nginx/sites-available/custom_404 <<EOL
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        root /usr/share/nginx/html;
+        error_page 404 /404.html;
+        location = /404.html {
+            internal;
+        }
+    }
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+}
+EOL
+
+ln -s /etc/nginx/sites-available/custom_404 /etc/nginx/sites-enabled/
+
+nginx -t
+
+nginx -s reload

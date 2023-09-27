@@ -1,0 +1,15 @@
+#!/bin/bash
+
+apt-get update
+apt-get install -y nginx
+
+service nginx start
+
+echo "Hello World!" > /var/www/html/index.html
+
+netstat -tuln | grep ':80' || {
+    echo "Nginx is not listening on port 80"
+    exit 1
+}
+
+nginx -s reload
