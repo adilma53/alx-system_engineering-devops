@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Install Nginx on the web server
+# Install Nginx on the web server and configure redirection
 
-# Updating and installing Nginx
-echo "[!] Updating your system and installing Nginx"
+# Update and install Nginx
 sudo apt-get update -y
 sudo apt-get install nginx -y
-echo "[+] Nginx installed"
 
-# Starting Nginx
-echo "[!] Starting Nginx"
+# Start Nginx
 sudo service nginx start
 
-# Allowing Nginx through the firewall
-echo "[!] Allowing Nginx on the firewall"
+# Allow Nginx through the firewall
 sudo ufw allow 'Nginx HTTP'
-echo "[!] Done allowing Nginx on the firewall"
 
-# Creating a Hello World page
-echo "[!] Creating a Hello World page"
+# Create a Hello World page
 echo "Hello World!" | sudo tee /var/www/html/index.html
-sudo nginx -t
+
+# Configure redirection to YouTube
+sudo sed -i '24i\	rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+
+# Reload Nginx to apply changes
 sudo service nginx reload
-echo "[!] Done"
+
+# Display completion message
+echo "Nginx installation and configuration completed."
