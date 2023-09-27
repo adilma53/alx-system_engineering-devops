@@ -1,15 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# install Nginx on the web server
 
-apt-get update
-apt-get install -y nginx
+# updating and installing Nginx
+echo "[!] Updating your system and installing Nginx"
+sudo apt-get update -y
+sudo apt-get install nginx -y
+echo "[+] Nginx installed"
 
-service nginx start
+# starting Nginx
+echo "[!] Starting Nginx"
+sudo service nginx start
 
-echo "Hello World!" > /var/www/html/index.html
+# allowing Nginx through the firewall
+echo "[!] Allowing Nginx on the firewall"
+sudo ufw allow 'Nginx HTTP'
+echo "[!] Done allowing Nginx on the firewall"
 
-netstat -tuln | grep ':80' || {
-    echo "Nginx is not listening on port 80"
-    exit 1
-}
-
-nginx -s reload
+# creating a Hello World page
+echo "[!] Creating a Hello World page"
+echo "Hello World!" | sudo tee /var/www/html/index.html
+sudo nginx -t
+sudo service nginx reload
+echo "[!] Done"
