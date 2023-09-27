@@ -1,29 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Install Nginx on the web server
 
-if ! [ -x "$(command -v nginx)" ]; then
-    apt-get update
-    apt-get install -y nginx
+# Updating and installing Nginx
+echo "[!] Updating your system and installing Nginx"
+sudo apt-get update -y
+sudo apt-get install nginx -y
+echo "[+] Nginx installed"
 
-    service nginx start
-fi
+# Starting Nginx
+echo "[!] Starting Nginx"
+sudo service nginx start
 
-cat > /etc/nginx/sites-available/redirect_me <<EOL
-server {
-    listen 80;
-    server_name _;
+# Allowing Nginx through the firewall
+echo "[!] Allowing Nginx on the firewall"
+sudo ufw allow 'Nginx HTTP'
+echo "[!] Done allowing Nginx on the firewall"
 
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-
-    location / {
-        return 404;
-    }
-}
-EOL
-
-ln -s /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
-
-nginx -t
-
-nginx -s reload
+# Creating a Hello World page
+echo "[!] Creating a Hello World page"
+echo "Hello World!" | sudo tee /var/www/html/index.html
+sudo nginx -t
+sudo service nginx reload
+echo "[!] Done"
