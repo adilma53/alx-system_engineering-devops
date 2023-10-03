@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Define color variables for formatting output
+# Disable shellcheck warning for a specific rule
+# Color variables for text formatting
 green='\033[0;34m'
+orange='\033[0;33m'
 red='\033[0;31m'
 yellow='\033[1;33m'
 
@@ -12,72 +14,94 @@ cprint() {
   echo -e "${color}${text}${NC}"
 }
 
-# Start of system update and haproxy installation process
+# Start of script: Preparing for updates and checks
 
-cprint "$green" "[+] Initiating system update and haproxy installation..."
+cprint "$orange" "[+] Good Morning, preparing for updates and minor checks..."
 
 # Function to check if a command is installed
 checker() {
-  if command -v "$1" >/dev/null 2>&1 ; then
+  command -v "$1" >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
     cprint "$green" "[+] $1 is already installed"
     cprint "$yellow" "[!] Updating installed packages"
-    sudo apt-get update -y && \
-      sudo apt-get upgrade -y
-    sudo apt-get update -y && \
-      sudo apt-get upgrade -y
+    sudo apt-get update -y  && \
+      sudo apt-get upgrade -y 
+    sudo apt-get update -y  && \
+      sudo apt-get upgrade -y 
   else
     cprint "$red" "[+] $1 is not installed"
     cprint "$yellow" "[!] Installing $1"
-    sudo apt-get update -y && \
-      sudo apt-get install "$1" -y
-    sudo apt-get update -y && \
-      sudo apt-get upgrade -y && \
+    sudo apt-get update -y  && \
+      sudo apt-get install "$1" -y  
+    sudo apt-get update -y  && \
+      sudo apt-get upgrade -y  && \
       sudo apt-get install "$1" -y
     echo -e "\n"
     cprint "$green" "[+] $1 is now installed"
   fi
 }
 
-# Check if haproxy is installed
-checker haproxy
+# Check if nginx is installed, and install it if not
+checker nginx
 
-# Setting up additional configurations
+cprint "$green" "[+] Performing some pre-Nginx configurations"
 
-cprint "$yellow" "[!] Configuring some minor settings"
+# Allowing nginx to run on port 80
+sudo ufw allow 'Nginx HTTP'
 
-# Backing up the default haproxy configuration
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.backup
-
-# Setting new configuration for haproxy
-server_config=\
-"
-defaults
-    mode http
-    timeout client 15s
-    timeout connect 10s
-    timeout server 15s
-
-frontend th3gr00t-tech-frontend
-    bind *:80
-    default_backend th3gr00t-tech-backend
-
-backend th3gr00t-tech-backend
-    balance roundrobin
-    server 369995-web-01 54.90.63.243:80 check
-    server 369995-web-54.90.4.180:80 check
-"
-# Use 'dd' to write the new configuration to haproxy.cfg
-# shellcheck disable=SC2154
-echo "$server_config" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
-
-# Enable haproxy
-echo "ENABLED=1" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
-
-# Check if haproxy is running and restart if necessary
-if [ "$(pgrep haproxy)" ]; then
-  cprint "$green" "[+] haproxy is running"
-  sudo service haproxy start
+# Setting ownership and permissions for website files
+if [ -d "/var/www" ] ; then
+  sudo chown -R "$USER":"$USER" /var/www
+  sudo chmod -R 755 /var/www
 else
-  cprint "$red" "[+] Restarting haproxy"
-  sudo service haproxy restart
+  sudo mkdir -p /var/www
+  sudo chown -R "$USER":"$USER" /var/www
+  sudo chmod -R 755 /var/www
 fi
+
+# Creating directories if they don't exist
+declare -a folders=("html" "error")
+for folder in "${folders[@]}"; do
+  if [ ! -d "/var/www/$folder" ]; then
+    mkdir "/var/www/$folder"
+  fi
+done
+
+# Creating new index.html and 404.html files
+echo "Hello World!" > /var/www/html/index.html
+echo "Ceci n'est pas une page" > /var/www/error/404.html
+
+# Configuring the nginx server with a backup
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+
+# Configuring nginx server settings
+alx_server_config=\
+"server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    add_header X-Served-By \$hostname;
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+    if (\$request_filename ~ redirect_me){
+        rewrite ^ https://th3-gr00t.tk/ permanent;
+    }
+    error_page 404 /error_404.html;
+    location = /error_404.html {
+        internal;
+    }
+}"
+# Use 'dd' to write the new configuration to the default file
+sudo echo "$alx_server_config" | sudo dd status=none of=/etc/nginx/sites-available/default
+
+# Check if nginx is running, start it if not, or restart if it's already running
+if [ "$(pgrep -c nginx)" -eq 0 ]; then
+  sudo service nginx start
+else
+  sudo service nginx restart
+fi
+
+cprint "$green" "[+] Script completed. Goodbye!"
