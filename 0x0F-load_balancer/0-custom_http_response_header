@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154
-# colors
+# define color codes for text output
 green='\033[0;34m'
 orange='\033[0;33m'
 red='\033[0;31m'
 yellow='\033[1;33m'
+# function to print colored text
 cprint() {
   local color=$1
   local text=$2
   local NC='\033[0m'
   echo -e "${color}${text}${NC}"
 }
+# start of the script
 cprint "$orange" "[+] Good Morning, I am about to do some updates and minor checks"
+# function to check and install packages
 checker() {
   command -v "$1" >/dev/null 2>&1
   if [ $? -eq 0 ]; then
@@ -37,8 +39,7 @@ checker nginx # checking if the nginx is installed if not then install
 cprint "$green" "[+] Stepping some minor stuff befor running nginx"
 # allowig nginx to run on port 80
 sudo ufw allow 'Nginx HTTP'
-# give the user ownership to website files for easy editing
-if [ -d "/var/www" ] ; then
+# set ownership and permissions for website filesif [ -d "/var/www" ] ; then
   sudo chown -R "$USER":"$USER" /var/www
   sudo chmod -R 755 /var/www
 else
@@ -46,8 +47,7 @@ else
   sudo chown -R "$USER":"$USER" /var/www
   sudo chmod -R 755 /var/www
 fi
-# create dir if not presented
-declare -a folders=("html" "error")
+# create directories if they don't existdeclare -a folders=("html" "error")
 for folder in "${folders[@]}"; do
   if [ ! -d "/var/www/$folder" ]; then
     mkdir "/var/www/$folder"
