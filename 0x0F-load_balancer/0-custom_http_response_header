@@ -1,90 +1,83 @@
 #!/usr/bin/env bash
-# define color codes for text output
+# Define color variables for formatting output
 green='\033[0;34m'
-orange='\033[0;33m'
 red='\033[0;31m'
 yellow='\033[1;33m'
-# function to print colored text
+
+# Function to print colored text
 cprint() {
   local color=$1
   local text=$2
   local NC='\033[0m'
   echo -e "${color}${text}${NC}"
 }
-# start of the script
-cprint "$orange" "[+] Good Morning, I am about to do some updates and minor checks"
-# function to check and install packages
+
+# Start of system update and haproxy installation process
+
+cprint "$green" "[+] Initiating system update and haproxy installation..."
+
+# Function to check if a command is installed
 checker() {
-  command -v "$1" >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    cprint "$green" "[+] $1 is installed"
-    cprint "$yellow" "[!] Updating packages that you have"
-    sudo apt-get update -y  && \
-      sudo apt-get upgrade -y 
-    sudo apt-get update -y  && \
-      sudo apt-get upgrade -y 
+  if command -v "$1" >/dev/null 2>&1 ; then
+    cprint "$green" "[+] $1 is already installed"
+    cprint "$yellow" "[!] Updating installed packages"
+    sudo apt-get update -y && \
+      sudo apt-get upgrade -y
+    sudo apt-get update -y && \
+      sudo apt-get upgrade -y
   else
     cprint "$red" "[+] $1 is not installed"
     cprint "$yellow" "[!] Installing $1"
-    sudo apt-get update -y  && \
-      sudo apt-get install "$1" -y  
-    sudo apt-get update -y  && \
-      sudo apt-get upgrade -y  && \
+    sudo apt-get update -y && \
+      sudo apt-get install "$1" -y
+    sudo apt-get update -y && \
+      sudo apt-get upgrade -y && \
       sudo apt-get install "$1" -y
     echo -e "\n"
     cprint "$green" "[+] $1 is now installed"
   fi
 }
-checker nginx # checking if the nginx is installed if not then install
-cprint "$green" "[+] Stepping some minor stuff befor running nginx"
-# allowig nginx to run on port 80
-sudo ufw allow 'Nginx HTTP'
-# set ownership and permissions for website filesif [ -d "/var/www" ] ; then
-  sudo chown -R "$USER":"$USER" /var/www
-  sudo chmod -R 755 /var/www
+
+# Check if haproxy is installed
+checker haproxy
+
+# Setting up additional configurations
+
+cprint "$yellow" "[!] Configuring some minor settings"
+
+# Backing up the default haproxy configuration
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.backup
+
+# Setting new configuration for haproxy
+server_config=\
+"
+defaults
+    mode http
+    timeout client 15s
+    timeout connect 10s
+    timeout server 15s
+
+frontend th3gr00t-tech-frontend
+    bind *:80
+    default_backend th3gr00t-tech-backend
+
+backend th3gr00t-tech-backend
+    balance roundrobin
+    server 369995-web-01 54.90.63.243:80 check
+    server 369995-web-54.90.4.180:80 check
+"
+# Use 'dd' to write the new configuration to haproxy.cfg
+# shellcheck disable=SC2154
+echo "$server_config" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
+
+# Enable haproxy
+echo "ENABLED=1" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
+
+# Check if haproxy is running and restart if necessary
+if [ "$(pgrep haproxy)" ]; then
+  cprint "$green" "[+] haproxy is running"
+  sudo service haproxy start
 else
-  sudo mkdir -p /var/www
-  sudo chown -R "$USER":"$USER" /var/www
-  sudo chmod -R 755 /var/www
+  cprint "$red" "[+] Restarting haproxy"
+  sudo service haproxy restart
 fi
-# create directories if they don't existdeclare -a folders=("html" "error")
-for folder in "${folders[@]}"; do
-  if [ ! -d "/var/www/$folder" ]; then
-    mkdir "/var/www/$folder"
-  fi
-done
-# create new index.html
-echo "Hello World!" > /var/www/html/index.html
-# create new 404.html
-echo "Ceci n'est pas une page" > /var/www/error/404.html
-# configer the server but backup 1st 
-# config file
-sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
-# config files
-alx_server_config=\
-"server {
-		listen 80 default_server;
-		listen [::]:80 default_server;
-		root /var/www/html;
-		index index.html index.htm index.nginx-debian.html
-		server_name_;
-		add_header X-Served-By \$hostname;
-		location / {
-			try_files \$uri \$uri/ =404;
-		}
-		if (\$request_filename ~ redirect_me){
-			rewrite ^ https://th3-gr00t.tk/ permanent;
-		}
-		error_page 404 /error_404.html;
-		location = /error_404.html {
-			internal;
-		}
-}"
-sudo echo "$alx_server_config" | sudo dd status=none of=/etc/nginx/sites-available/default
-# check of nginx is running if not the start if it is already running then restart
-if [ "$(pgrep -c nginx)" -eq 0 ]; then
-  sudo service nginx start
-else
-  sudo service nginx restart
-fi
-cprint "$green" "[+] Done Bye Bye"
