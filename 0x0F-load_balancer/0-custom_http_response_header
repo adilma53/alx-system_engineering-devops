@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# define color codes for text output
+green='\033[0;32m'
+yellow='\033[1;33m'
+red='\033[0;31m'
+reset='\033[0m'
+
+# function to print colored text
+cprint() {
+  local color=$1
+  local text=$2
+  echo -e "${color}${text}${reset}"
+}
+
+# start of the script
+cprint "$yellow" "[+] Initializing updates and checks"
+
+# function to check and install packages
+checker() {
+  command -v "$1" >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    cprint "$green" "[+] $1 is already installed"
+  else
+    cprint "$red" "[+] $1 is not installed"
+    cprint "$yellow" "[!] Installing $1"
+    sudo apt-get update -y && sudo apt-get install "$1" -y
+    echo -e "\n"
+    cprint "$green" "[+] $1 is now installed"
+  fi
+}
+
+# check and install Nginx
+checker nginx
+
+cprint "$green" "[+] Performing pre-Nginx configuration"
+
+# allow Nginx to run on port 80
+sudo ufw allow 'Nginx HTTP'
+
+# set ownership and permissions for website files
+if [ -d "/var/www" ] ; then
+  sudo chown -R "$USER":"$USER" /var/www
+  sudo chmod -R 755 /var/www
+else
+  sudo mkdir -p /var/www
+  sudo chown -R "$USER":"$USER" /var/www
+  sudo chmod -R 755 /var/www
+fi
+
+# create directories if they don't exist
+declare -a folders=("html" "error")
+for folder in "${folders[@]}"; do
+  if [ ! -d "/var/www/$folder" ]; then
+    mkdir "/var/www/$folder"
+  fi
+done
+
+# create new index.html
+echo "Hello World!" > /var/www/html/index.html
+
+# create new 404.html
+echo "Ceci n'est pas une page" > /var/www/error/404.html
+
+# configure Nginx server with a backup of the default configuration
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+
+# define the Nginx server configuration
+alx_server_config="
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    add_header X-Served-By \$hostname;
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+    if (\$request_filename ~ redirect_me){
+        rewrite ^ https://th3-gr00t.tk/ permanent;
+    }
+    error_page 404 /error_404.html;
+    location = /error_404.html {
+        internal;
+    }
+}"
+
+# apply the custom Nginx server configuration
+sudo echo "$alx_server_config" | sudo dd status=none of=/etc/nginx/sites-available/default
+
+# check if Nginx is running and start or restart it accordingly
+if [ "$(pgrep -c nginx)" -eq 0 ]; then
+  sudo service nginx start
+else
+  sudo service nginx restart
+fi
+
+cprint "$green" "[+] Configuration completed. Goodbye!"
