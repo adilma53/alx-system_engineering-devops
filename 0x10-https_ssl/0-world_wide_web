@@ -2,16 +2,23 @@
 # take domain & subdomain as input and
 # prints out thier info
 
-output () {
-    dig "$1" | grep -A1 'ANSWER SECTION:' | sed -r "s/$1./$2/g" |  awk -F" " ' NR==2 { print "The subdomain " $1 " is a " $4 " record and points to "$5 }'
+subdomains=("www" "lb-01" "web-01" "web-02")
+domain="$1"
+sub="$2"
+
+domain_info () {
+    sub="$2"
+    INFO="$(dig "$sub.$domain" | grep -A 1 'ANSWER SECTION:' | awk 'NR == 2')"
+    IP="$(echo "$INFO" | awk '{print $5}')"
+    RECO="$(echo "$INFO" | awk '{print $4}')"
+
+    echo "The subdomain $sub is a $RECO record and points to $IP"
 }
 
-if [ "$#" -eq 2 ]
-then
-    output "$2.$1" "$2"
-else
-    output "www.$1" 'www'
-    output "lb-01.$1" 'lb-01'
-    output "web-01.$1" 'web-01'
-    output "web-02.$1" 'web-02'
+if [ $# -eq 1 ]; then
+    for sub in "${subdomains[@]}"; do
+        domain_info "$sub" "$sub"
+    done
+elif [ $# -eq 2 ]; then
+    domain_info "$sub" "$domain"
 fi
