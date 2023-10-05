@@ -2,16 +2,16 @@
 # take domain & subdomain as input and
 # prints out thier info
 
-subdomains=("www" "lb-01" "web-01" "web-02")
-
 output () {
-    domain="$1"
-    sub="$2"
-    dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | sed -r "s/$sub./$sub/g" |  awk -F" " ' NR==2 { print "The subdomain " $1 " is a " $4 " record and points to "$5 }'
+    dig "$1" | grep -A1 'ANSWER SECTION:' | sed -r "s/$1./$2/g" |  awk -F" " ' NR==2 { print "The subdomain " $1 " is a " $4 " record and points to "$5 }'
 }
 
-# loop through the subdomains array
-for sub in "${subdomains[@]}"
-do
-    output "$1" "$sub"
-done
+if [ "$#" -eq 2 ]
+then
+    output "$2.$1" "$2"
+else
+    output "www.$1" 'www'
+    output "lb-01.$1" 'lb-01'
+    output "web-01.$1" 'web-01'
+    output "web-02.$1" 'web-02'
+fi
