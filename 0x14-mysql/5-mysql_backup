@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# back for mysql databse and also compress it
+
+day=$(date +%d)
+month=$(date +%m)
+year=$(date +%Y)
+
+filename="$day-$month-$year.tar.gz"
+
+mysqldump --all-databases -uroot --password="$1" > backup.sql
+tar -czvf "$filename" backup.sql
