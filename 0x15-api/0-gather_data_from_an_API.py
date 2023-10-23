@@ -6,8 +6,9 @@ import sys
 
 if __name__ == "__main__":
     uid = sys.argv[1]
+    baseUrl = "https://jsonplaceholder.typicode.com/"
     user = requests.get(
-        "https://jsonplaceholder.typicode.com/users/{}".format(uid)
+        baseUrl+"{}".format(uid)
     ).json()
     todos = requests.get(
         "https://jsonplaceholder.typicode.com/todos?userId={}".format(uid)
