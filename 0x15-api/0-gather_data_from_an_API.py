@@ -8,18 +8,15 @@ if __name__ == "__main__":
     uid = sys.argv[1]
     baseUrl = "https://jsonplaceholder.typicode.com/"
     user = requests.get(
-        baseUrl+"{}".format(uid)
+        baseUrl+f"{uid}"
     ).json()
     todos = requests.get(
-        "https://jsonplaceholder.typicode.com/todos?userId={}".format(uid)
+        "https://jsonplaceholder.typicode.com/todos?userId={uid}"
     ).json()
 
     task_completed = [
         task.get("title") for task in todos if task.get("completed") is True
     ]
     print(
-        "Employee {} is done with tasks({}/{}):".format(
-            user.get("name"), len(task_completed), len(todos)
-        )
-    )
+        f"Employee {user.get('name')} is done with tasks({len(task_completed)}/{len(todos)}):")
     [print("\t {}".format(task)) for task in task_completed]
