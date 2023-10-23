@@ -1,24 +1,24 @@
 #!/usr/bin/python3
-"""Returns to do list info"""
-
-
+"""gather data from api using user id"""
 import requests
 import sys
 
 
 if __name__ == "__main__":
-    user_id = sys.argv[1]
+    uid = sys.argv[1]
     user = requests.get(
-        f"https://jsonplaceholder.typicode.com/users/{user_id}"
+        "https://jsonplaceholder.typicode.com/users/{}".format(uid)
     ).json()
     todos = requests.get(
-        f"https://jsonplaceholder.typicode.com/todos?userId={user_id}"
+        "https://jsonplaceholder.typicode.com/todos?userId={}".format(uid)
     ).json()
 
     task_completed = [
         task.get("title") for task in todos if task.get("completed") is True
     ]
     print(
-        f"Employee {user.get("name")} is done with tasks({len(task_completed)}/{len(todos)}):"
+        "Employee {} is done with tasks({}/{}):".format(
+            user.get("name"), len(task_completed), len(todos)
+        )
     )
-    [print(f"\t {task}") for task in task_completed]
+    [print("\t {}".format(task)) for task in task_completed]
