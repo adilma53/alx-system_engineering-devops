@@ -6,7 +6,8 @@ import requests
 
 def top_ten(subreddit):
     """get last hot 10"""
-    baseUrl = f'https://www.reddit.com/r/{subreddit}/about.json'
+
+    baseUrl = 'https://www.reddit.com/r/{subreddit}/hot.json'
     headers = {'User-Agent': 'Alx'}
 
     res = requests.get(baseUrl, headers=headers, allow_redirects=False)
