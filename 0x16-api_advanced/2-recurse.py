@@ -7,7 +7,7 @@ import requests
 def recurse(subreddit, hot_list=[], count=0, next_page=None):
     """ list all hot posts """
 
-    baseUrl = 'https://www.reddit.com/r/{subreddit}/hot.json'
+    baseUrl = f'https://www.reddit.com/r/{subreddit}/hot.json'
     headers = {"User-Agent": "0x16. API_advanced-e_kiminza"}
 
     params = {"limit": 50, "next_page": next_page, "count": count}
