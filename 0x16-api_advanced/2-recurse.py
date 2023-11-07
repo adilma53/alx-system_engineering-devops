@@ -1,12 +1,13 @@
 #!/usr/bin/python3
-""" list containing the titles of all hot articles for subreddit """
+""" list all hot posts of a subreddit """
 
 import requests
 
 
 def recurse(subreddit, hot_list=[], count=0, next_page=None):
+    """ list all hot posts """
 
-    baseUrl = f'https://www.reddit.com/r/{subreddit}/about.json'
+    baseUrl = 'https://www.reddit.com/r/{subreddit}/hot.json'
     headers = {"User-Agent": "0x16. API_advanced-e_kiminza"}
 
     params = {"limit": 50, "next_page": next_page, "count": count}
