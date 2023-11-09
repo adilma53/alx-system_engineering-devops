@@ -7,7 +7,7 @@ import requests
 def count_words(subreddit, word_list, found_list=[], after=None):
     """get words of hot posts"""
     headers = {"User-agent": "Mozilla/5.0"}
-    posts = requests.get(f"http://www.reddit.com/r/{subreddit}/\
+    posts = requests.get(f"http://www.reddit.com/r/{subreddit}/
                             hot.json?after={after}", headers=headers)
     if after is None:
         word_list = [word.lower() for word in word_list]
