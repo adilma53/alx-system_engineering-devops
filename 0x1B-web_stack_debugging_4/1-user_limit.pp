@@ -1,4 +1,4 @@
-# files problem fixed
+# amount of files allowed fix
 
 exec {'replace_1':
   provider => shell,
